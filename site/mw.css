@@ -1,0 +1,161 @@
+/* Marco Weger_ — stile grafico standard. Generated from tokens.json; source of truth: design system artifact "Marco Weger_".
+   Fonts: Space Grotesk + JetBrains Mono, self-hosted on this site (see fonts.css). */
+:root {
+  --ink: #0b0b0b;
+  --paper: #ffffff;
+  --paper-alt: #f4f4f1;
+  --band: #0b0b0b;
+  --on-band: #ffffff;
+  --on-band-muted: #9b9b9b;
+  --band-rule: #3a3a3a;
+  --lime: #c8f031;
+  --on-lime: #0b0b0b;
+  --text-dim: #5e5e5e;
+  --text-label: #8a8a8a;
+  --hairline: #e2e2e2;
+  --bar-optional: #bdbdbd;
+  --signal-bad: #c4320a;
+  --signal-bad-soft: #fdeee7;
+  --signal-ok: #1f6f43;
+  --signal-ok-soft: #e8f3ec;
+  --signal-note: #1d4ed8;
+  --signal-note-soft: #e9eefc;
+  --focus: #0b0b0b;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --page-margin: 72px;
+  --radius-0: 0px;
+  --radius-1: 2px;
+  --font-sans: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ink: #f2f2ee;
+  --paper: #0b0b0b;
+  --paper-alt: #151515;
+  --band: #000000;
+  --on-band: #ffffff;
+  --on-band-muted: #9b9b9b;
+  --band-rule: #3a3a3a;
+  --lime: #c8f031;
+  --on-lime: #0b0b0b;
+  --text-dim: #a6a6a2;
+  --text-label: #8a8a8a;
+  --hairline: #2a2a2a;
+  --bar-optional: #4a4a4a;
+  --signal-bad: #ff7a45;
+  --signal-bad-soft: #2a1408;
+  --signal-ok: #7cd3a0;
+  --signal-ok-soft: #0f2418;
+  --signal-note: #8fb0ff;
+  --signal-note-soft: #121b33;
+  --focus: #c8f031;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --ink: #f2f2ee;
+  --paper: #0b0b0b;
+  --paper-alt: #151515;
+  --band: #000000;
+  --on-band: #ffffff;
+  --on-band-muted: #9b9b9b;
+  --band-rule: #3a3a3a;
+  --lime: #c8f031;
+  --on-lime: #0b0b0b;
+  --text-dim: #a6a6a2;
+  --text-label: #8a8a8a;
+  --hairline: #2a2a2a;
+  --bar-optional: #4a4a4a;
+  --signal-bad: #ff7a45;
+  --signal-bad-soft: #2a1408;
+  --signal-ok: #7cd3a0;
+  --signal-ok-soft: #0f2418;
+  --signal-note: #8fb0ff;
+  --signal-note-soft: #121b33;
+  --focus: #c8f031;
+  color-scheme: dark;
+}
+
+/* Marco Weger_ — component classes. Values come from tokens.css (var(--…)); nothing here re-declares a token. */
+.mw { font-family: var(--font-sans); color: var(--ink); background: var(--paper); }
+.mw *, .mw *::before, .mw *::after { box-sizing: border-box; }
+.mw-mono { font-family: var(--font-mono); }
+
+/* Band: header and footer on every page */
+.mw-band { background: var(--band); color: var(--on-band); display: flex; justify-content: space-between; align-items: center; gap: var(--space-6); padding: var(--space-4) var(--space-8); }
+.mw-wordmark { font-weight: 700; font-size: 20px; letter-spacing: 0.5px; line-height: 1.1; margin: 0; }
+.mw-wordmark::after { content: "_"; color: var(--lime); }
+.mw-band-sub { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--on-band-muted); margin: var(--space-1) 0 0; }
+.mw-band-kv { font-family: var(--font-mono); font-size: 12px; display: grid; grid-template-columns: auto auto; gap: 2px var(--space-4); color: var(--on-band); }
+.mw-band-kv dt { color: var(--on-band-muted); }
+.mw-band-kv dd { margin: 0; }
+.mw-band--footer { font-family: var(--font-mono); font-size: 11px; color: var(--on-band-muted); padding-block: var(--space-2); }
+.mw-band--footer b { color: var(--on-band); }
+.mw-pageno { color: var(--on-band-muted); }
+.mw-pageno em { font-style: normal; color: var(--lime); }
+
+/* Tag: lime block with mono text */
+.mw-tag { display: inline-block; background: var(--lime); color: var(--on-lime); font-family: var(--font-mono); font-weight: 700; font-size: 12px; letter-spacing: 0.5px; line-height: 1.4; padding: 1px var(--space-2); border-radius: var(--radius-0); white-space: nowrap; }
+
+/* SectionHead: number tag + spaced caps + ink rule */
+.mw-section { display: flex; align-items: center; gap: var(--space-6); font-family: var(--font-mono); font-weight: 700; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--ink); padding-bottom: var(--space-2); border-bottom: 1px solid var(--ink); margin: 0 0 var(--space-4); }
+
+/* Label */
+.mw-label { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--text-label); }
+
+/* MetaFields: label/value columns, each with an ink rule above */
+.mw-meta { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--space-6); }
+.mw-meta > div { border-top: 1px solid var(--ink); padding-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.mw-meta .v { font-size: 15px; }
+.mw-meta .v2 { font-size: 13px; color: var(--text-dim); }
+
+/* LineItem: number, name + description, price */
+.mw-items { display: flex; flex-direction: column; }
+.mw-item { display: grid; grid-template-columns: 40px 1fr auto; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--hairline); }
+.mw-item .n { font-family: var(--font-mono); font-size: 13px; color: var(--text-label); padding-top: 2px; }
+.mw-item .name { font-weight: 500; font-size: 17px; line-height: 1.35; }
+.mw-item .desc { font-size: 14px; color: var(--text-dim); margin-top: var(--space-1); }
+.mw-item .price { font-family: var(--font-mono); font-size: 15px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mw-item .price small { font-size: 11px; color: var(--text-label); margin-left: 2px; }
+
+/* TotalBox */
+.mw-total { background: var(--band); color: var(--on-band); padding: var(--space-6) var(--space-6) var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); min-width: 280px; }
+.mw-total .row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-6); }
+.mw-total .row + .row { border-top: 1px solid var(--band-rule); padding-top: var(--space-3); }
+.mw-total .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2.4px; text-transform: uppercase; }
+.mw-total .v { font-family: var(--font-mono); font-weight: 700; font-size: 36px; line-height: 1.1; color: var(--lime); font-variant-numeric: tabular-nums; }
+.mw-total .row:not(:first-child) .v { font-size: 24px; }
+.mw-total .v small { font-size: 12px; font-weight: 400; color: var(--on-band-muted); margin-left: var(--space-1); }
+.mw-total .note { font-family: var(--font-mono); font-size: 11px; color: var(--on-band-muted); }
+
+/* KeyValue rows */
+.mw-kv { display: grid; grid-template-columns: 180px 1fr; }
+.mw-kv > * { padding: var(--space-3) 0; border-bottom: 1px solid var(--hairline); }
+.mw-kv dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2.4px; text-transform: uppercase; color: var(--text-label); }
+.mw-kv dd { margin: 0; font-size: 15px; }
+
+/* Pill: status with a word. Intentional addition */
+.mw-pill { display: inline-block; font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 2px var(--space-2); border-radius: var(--radius-0); }
+.mw-pill--bad { background: var(--signal-bad-soft); color: var(--signal-bad); }
+.mw-pill--ok { background: var(--signal-ok-soft); color: var(--signal-ok); }
+.mw-pill--note { background: var(--signal-note-soft); color: var(--signal-note); }
+.mw-pill--accent { background: var(--lime); color: var(--on-lime); }
+
+/* Button: web only. Intentional addition */
+.mw-btn { display: inline-flex; align-items: center; gap: var(--space-2); font: 500 15px/1 var(--font-sans); padding: 12px 18px; border-radius: var(--radius-1); border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; text-decoration: none; }
+.mw-btn::after { content: "→"; font-family: var(--font-mono); }
+.mw-btn--ghost { background: transparent; color: var(--ink); }
+.mw-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* DataTable */
+.mw-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mw-table th { font-family: var(--font-mono); font-weight: 400; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-label); text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--ink); }
+.mw-table td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--hairline); }
+.mw-table td.num, .mw-table th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.mw-table tr.sub td { background: var(--paper-alt); font-weight: 700; }
+.mw-table tr.total td { background: var(--band); color: var(--on-band); font-weight: 700; }
