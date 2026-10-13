@@ -9,6 +9,7 @@ Personal site of Marco Weger, integration engineer and IT consultant. Static HTM
 | `site/index.html` | The page (IT + EN in the same file, `lang-it` / `lang-en` classes) |
 | `site/styles.css` | Page layout and effects |
 | `site/mw.css` | MW design tokens and components, copy of `MW/Stile grafico/mw.css`. Regenerate from there, never edit colours by hand |
+| `site/boot.js` | Runs in `<head>`: restores saved language/theme before first paint, sets `html.anim` when motion is allowed |
 | `site/script.js` | Language and theme switch, copy button, scroll effects, hidden terminal |
 | `site/fonts.css`, `site/fonts/` | Space Grotesk and JetBrains Mono, self-hosted (SIL OFL 1.1) |
 | `site/privacy.html`, `site/404.html` | Privacy notice and themed 404 |
@@ -25,7 +26,13 @@ No `test` branch: preview locally with `python3 -m http.server 4173 -d site`.
 
 ## Adding a terminal command
 
-In `site/script.js`, add an entry to the `cmds` object (`'name': function () { print('...'); }`) and list it in `help`.
+In `site/script.js`, add an entry to the `cmds` object (`'name': function () { print('...'); }`) and list it in `help`. Tab completion picks it up automatically.
+
+## Security
+
+`index.html` and `privacy.html` carry a Content Security Policy in a `<meta>` tag (GitHub Pages cannot set headers): only same-origin scripts, styles, fonts and images. Keep it that way: no inline `<script>` or `style=""` attributes, put code in `boot.js` / `script.js` and rules in `styles.css`. JSON-LD blocks are data, not scripts, and are allowed.
+
+When a CSS/JS file changes, bump the `?v=` query on every page that links it (cache busting).
 
 ## DNS (Aruba)
 

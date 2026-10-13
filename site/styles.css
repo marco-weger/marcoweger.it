@@ -1,10 +1,12 @@
-/* Portfolio v5 — layout: wordmark band with a scroll "build" meter, giant mono name, every section opens with a typed shell command.
+/* marcoweger.it — layout: wordmark band with a scroll "build" meter, giant mono name, every section opens with a typed shell command.
    Every colour comes from mw.css tokens (copy of MW/Stile grafico/mw.css). No hand-written colour values here. */
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; color-scheme: light; } /* mw.css switches it to dark with the tokens */
+@view-transition { navigation: auto; } /* cross-fade between pages (index, privacy, 404) where supported */
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-sans); font-size: 17px; line-height: 1.55; }
 * { box-sizing: border-box; }
 img { max-width: 100%; display: block; }
+p, li { text-wrap: pretty; } /* no orphan words at the end of paragraphs */
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 [hidden] { display: none !important; }
@@ -14,7 +16,8 @@ html[data-lang="it"] .lang-en, html[data-lang="en"] .lang-it { display: none !im
 .wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 5vw, 56px); }
 
 /* header band + build meter */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); color: var(--on-band); }
+/* sticky at 0 with the notch area painted by the band itself (top: env() left a see-through gap on iOS) */
+.top { position: sticky; top: 0; z-index: 10; padding-top: env(safe-area-inset-top, 0px); background: var(--band); color: var(--on-band); }
 .top-inner { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); padding-block: 14px; }
 .top-actions { display: flex; gap: var(--space-2); }
 .build { display: flex; align-items: center; gap: var(--space-3); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; color: var(--on-band-muted); margin-left: auto; margin-right: var(--space-4); }
@@ -25,6 +28,7 @@ html[data-lang="it"] .lang-en, html[data-lang="en"] .lang-it { display: none !im
 .scrollbar i { display: block; height: 100%; width: 0; background: var(--lime); }
 .sq { width: 38px; height: 38px; display: inline-grid; place-items: center; background: transparent; color: var(--on-band); border: 1px solid var(--band-rule); border-radius: 0; font: 700 12px/1 var(--font-mono); letter-spacing: 1px; cursor: pointer; }
 .sq:hover { border-color: var(--on-band); }
+.sq[aria-expanded="true"] { border-color: var(--lime); color: var(--lime); }
 .ico-sun { display: none; }
 html.is-dark .ico-sun { display: block; }
 html.is-dark .ico-moon { display: none; }
@@ -72,8 +76,28 @@ html.is-dark .ico-moon { display: none; }
 
 /* about */
 .about { padding-block: clamp(56px, 8vw, 104px); background: var(--paper-alt); border-top: 1px solid var(--ink); }
-.about-inner { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
-.about-photo { width: 200px; height: auto; aspect-ratio: 3 / 4; object-fit: cover; object-position: center 20%; filter: grayscale(1) contrast(1.05); border: 1px solid var(--ink); }
+.about-inner { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+/* photo: serious by default, "connected" (lime cable) on hover / tap / terminal */
+.photo-wrap { margin: 0; width: 240px; max-width: 100%; }
+.photo { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; padding: 0; border: 1px solid var(--ink); border-radius: 0; background: var(--band); cursor: pointer; overflow: hidden; }
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-b { visibility: hidden; }
+.photo.on .photo-b { visibility: visible; animation: glitch .42s steps(1) both; }
+.photo.flick .photo-a { animation: glitch .3s steps(1) both; }
+@keyframes glitch {
+  0%   { clip-path: inset(0 0 82% 0);  transform: translateX(-6px); }
+  14%  { clip-path: inset(38% 0 40% 0); transform: translateX(5px); }
+  28%  { clip-path: inset(72% 0 4% 0);  transform: translateX(-3px); }
+  42%  { clip-path: inset(12% 0 58% 0); transform: translateX(4px); }
+  56%  { clip-path: inset(52% 0 22% 0); transform: translateX(-2px); }
+  70%  { clip-path: inset(0 0 0 0);     transform: translateX(1px); }
+  100% { clip-path: inset(0 0 0 0);     transform: none; }
+}
+.photo-cap { margin-top: var(--space-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: .5px; color: var(--text-label); }
+.photo-cap .cap-on { display: none; background: var(--lime); color: var(--on-lime); padding: 1px 6px; }
+.photo-wrap.on .cap-on { display: inline-block; }
+.photo-wrap.on .cap-off { display: none; }
+@media (prefers-reduced-motion: reduce) { .photo.on .photo-b, .photo.flick .photo-a { animation: none; } }
 .about-text { max-width: 62ch; }
 .about-text .who { font-family: var(--font-mono); font-size: 14px; color: var(--ink); margin: 0 0 var(--space-6); }
 .about-text p { margin: 0 0 var(--space-4); font-size: 18px; }
@@ -89,7 +113,7 @@ html.is-dark .ico-moon { display: none; }
 .term--band .term-copy.done { background: var(--on-band); border-color: var(--on-band); color: var(--band); }
 
 /* footer */
-.foot { flex-wrap: wrap; padding-inline: clamp(16px, 5vw, 56px); border-top: 1px solid var(--band-rule); }
+.foot { flex-wrap: wrap; padding-inline: clamp(16px, 5vw, 56px); padding-bottom: max(var(--space-2), env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--band-rule); }
 .foot-links { display: flex; gap: var(--space-4); }
 .foot-links a { color: var(--on-band); text-underline-offset: 3px; }
 
@@ -104,14 +128,13 @@ html.anim [data-seq].term.shown { opacity: 1; }
 @media (max-width: 860px) { .build { display: none; } }
 @media (max-width: 760px) {
   .about-inner { grid-template-columns: minmax(0, 1fr); }
-  .about-photo { width: 150px; }
+  .photo-wrap { width: 180px; }
 }
 @media (max-width: 640px) { .name > span { display: block; } }
 
 /* rotating word in the hero */
 .rotator { color: var(--ink); font-weight: 500; background: var(--paper-alt); padding: 0 .2em; white-space: normal; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .rotator.typing::after { content: ""; display: inline-block; width: .5em; height: 1em; margin-left: 2px; background: var(--lime); vertical-align: -0.15em; }
-.org { color: var(--ink); font-weight: 500; }
 
 /* easter-egg terminal */
 .foot-hint { font-family: var(--font-mono); color: var(--on-band-muted); }
@@ -125,5 +148,17 @@ html.anim [data-seq].term.shown { opacity: 1; }
 .console-ps { color: var(--lime); white-space: nowrap; }
 .console-in { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--on-band); font: 16px var(--font-mono); caret-color: var(--lime); }
 .rain { position: fixed; inset: 0; z-index: 40; width: 100%; height: 100%; background: var(--band); pointer-events: none; transition: opacity .6s ease; }
-@media (max-width: 520px) { .foot-hint { display: none; } }
+/* the ~ hint is useless without a physical keyboard: phones and tablets use the >_ button */
+@media (max-width: 520px), (hover: none) { .foot-hint { display: none; } }
 .console-out a { color: var(--lime); text-underline-offset: 3px; }
+
+/* privacy page */
+a.mw-wordmark { text-decoration: none; }
+.legal p, .legal li { max-width: 68ch; font-size: 16px; color: var(--text-dim); }
+.legal h2 { font-size: 18px; margin: var(--space-8) 0 var(--space-2); font-weight: 500; color: var(--ink); }
+.legal ul { padding-left: 1.1em; }
+.notfound { border-bottom: 0; }
+
+/* page-to-page view transition: quick cross-fade, nothing fancy (MW style: no flourishes) */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .25s; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }

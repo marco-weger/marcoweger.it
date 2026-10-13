@@ -1,32 +1,49 @@
+/* Page behaviour. Saved language/theme are already applied by boot.js in <head>; this file wires the controls,
+   the scroll meter, the hidden terminal and (only when html.anim is set) the typing effects. */
 (function () {
   var html = document.documentElement;
   var anim = html.classList.contains('anim');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // localStorage can throw (private mode, blocked storage): preferences are a convenience, never a requirement.
   function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  // false for elements hidden by the inactive language (display: none)
   function visible(el) { return el.offsetParent !== null || getComputedStyle(el).position === 'fixed'; }
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  var langBtn = document.getElementById('lang-toggle');
+  var themeBtn = document.getElementById('theme-toggle');
+  var termBtn = document.getElementById('term-toggle');
+  var closeBtn = document.getElementById('console-close');
+  var con = document.getElementById('console');
 
   /* ---------- language ---------- */
-  var langBtn = document.getElementById('lang-toggle');
+  // Labels of icon-only controls follow the page language.
+  var LABELS = {
+    it: { lang: 'Switch to English', theme: 'Cambia tema', term: 'Apri il terminale', close: 'Chiudi', con: 'Terminale' },
+    en: { lang: 'Passa all’italiano', theme: 'Toggle theme', term: 'Open the terminal', close: 'Close', con: 'Terminal' }
+  };
   function setLang(lang) {
+    var l = LABELS[lang];
     html.setAttribute('data-lang', lang);
     html.setAttribute('lang', lang);
     langBtn.textContent = lang === 'it' ? 'EN' : 'IT';
-    langBtn.setAttribute('aria-label', lang === 'it' ? 'Switch to English' : 'Passa all’italiano');
+    langBtn.setAttribute('aria-label', l.lang);
+    themeBtn.setAttribute('aria-label', l.theme);
+    termBtn.setAttribute('aria-label', l.term);
+    closeBtn.setAttribute('aria-label', l.close);
+    con.setAttribute('aria-label', l.con);
   }
-  setLang(store('portfolio-lang') === 'en' ? 'en' : 'it');
+  setLang(html.getAttribute('data-lang') === 'en' ? 'en' : 'it');
   langBtn.addEventListener('click', function () {
     var next = html.getAttribute('data-lang') === 'it' ? 'en' : 'it';
     setLang(next); store('portfolio-lang', next);
   });
 
-  /* ---------- theme (no attribute = follow the system) ---------- */
-  var themeBtn = document.getElementById('theme-toggle');
+  /* ---------- theme (no data-theme attribute = follow the system) ---------- */
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   function isDark() { var t = html.getAttribute('data-theme'); return t ? t === 'dark' : !!(mq && mq.matches); }
+  // .is-dark only drives the sun/moon icon; colours come from mw.css tokens.
   function paint() { html.classList.toggle('is-dark', isDark()); }
-  var savedTheme = store('portfolio-theme');
-  if (savedTheme === 'dark' || savedTheme === 'light') html.setAttribute('data-theme', savedTheme);
   paint();
   if (mq && mq.addEventListener) mq.addEventListener('change', paint);
   themeBtn.addEventListener('click', function () {
@@ -77,25 +94,54 @@
     setInterval(function () { cells.forEach(function (c, i) { c.classList.toggle('on', i === k % cells.length || i === (k + 1) % cells.length); }); k++; }, 220);
   });
 
+  /* ---------- photo: plug / unplug ---------- */
+  var photo = document.getElementById('photo'), photoWrap = photo && photo.parentNode;
+  function plug(on) {
+    if (!photo) return;
+    var was = photo.classList.contains('on');
+    if (on === was) return;
+    photo.classList.toggle('on', on); photoWrap.classList.toggle('on', on);
+    photo.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (!on) { photo.classList.remove('flick'); void photo.offsetWidth; photo.classList.add('flick'); setTimeout(function () { photo.classList.remove('flick'); }, 320); }
+  }
+  if (photo) {
+    var hoverable = window.matchMedia && matchMedia('(hover: hover)').matches;
+    if (hoverable) {
+      photo.addEventListener('mouseenter', function () { plug(true); });
+      photo.addEventListener('mouseleave', function () { plug(false); });
+      photo.addEventListener('focus', function () { plug(true); });
+      photo.addEventListener('blur', function () { plug(false); });
+    } else {
+      photo.addEventListener('click', function () { plug(!photo.classList.contains('on')); });
+    }
+  }
+
   /* ---------- easter-egg terminal ---------- */
-  var con = document.getElementById('console'), out = document.getElementById('console-out');
+  var out = document.getElementById('console-out');
   var form = document.getElementById('console-form'), input = document.getElementById('console-in');
-  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function L() { return html.getAttribute('data-lang') === 'en'; }
   function t(it, en) { return L() ? en : it; }
   function print(text, cls) { var d = document.createElement('div'); if (cls) d.className = cls; d.textContent = text; out.appendChild(d); out.scrollTop = out.scrollHeight; }
   function openCon() {
     if (!con.hidden) { input.focus(); return; }
-    con.hidden = false;
+    con.hidden = false; termBtn.setAttribute('aria-expanded', 'true');
     if (!out.childNodes.length) print(t('Benvenuto. Scrivi "help" per i comandi.', 'Welcome. Type "help" for commands.'), 'hl');
     input.focus();
   }
-  function closeCon() { con.hidden = true; }
-  document.getElementById('term-toggle').addEventListener('click', function () { con.hidden ? openCon() : closeCon(); });
-  document.getElementById('console-close').addEventListener('click', closeCon);
+  function closeCon() {
+    if (con.hidden) return;
+    // Give focus back to the opener only if it was inside the console, so keyboard users don't get lost.
+    var hadFocus = con.contains(document.activeElement);
+    con.hidden = true; termBtn.setAttribute('aria-expanded', 'false');
+    if (hadFocus) termBtn.focus();
+  }
+  termBtn.addEventListener('click', function () { con.hidden ? openCon() : closeCon(); });
+  closeBtn.addEventListener('click', closeCon);
   document.addEventListener('keydown', function (e) {
-    var typingField = /INPUT|TEXTAREA/.test(document.activeElement && document.activeElement.tagName);
-    if ((e.key === '~' || e.key === '`' || e.key === '\\') && !typingField) { e.preventDefault(); openCon(); }
+    var el = document.activeElement;
+    var typingField = el && (/INPUT|TEXTAREA|SELECT/.test(el.tagName) || el.isContentEditable);
+    // Ignore Cmd/Ctrl combos (e.g. Cmd+` switches windows on macOS). Alt stays allowed: Option+5 types ~ on Italian Macs.
+    if ((e.key === '~' || e.key === '`' || e.key === '\\') && !typingField && !e.metaKey && !e.ctrlKey) { e.preventDefault(); openCon(); }
     else if (e.key === 'Escape' && !con.hidden) closeCon();
   });
 
@@ -104,7 +150,8 @@
     var c = document.getElementById('rain'), x = c.getContext('2d');
     var cs = getComputedStyle(html), lime = cs.getPropertyValue('--lime').trim(), bg = cs.getPropertyValue('--band').trim();
     c.hidden = false; c.style.opacity = '1';
-    var w = c.width = innerWidth, h = c.height = innerHeight, size = 16, cols = Math.ceil(w / size), drops = [];
+    var dpr = Math.min(window.devicePixelRatio || 1, 2), w = innerWidth, h = innerHeight, size = 16, cols = Math.ceil(w / size), drops = [];
+    c.width = w * dpr; c.height = h * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0);
     for (var i = 0; i < cols; i++) drops[i] = Math.random() * -40;
     var chars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉ01<>/{}=';
     var stop = performance.now() + ms;
@@ -122,13 +169,14 @@
       })(performance.now());
     });
   }
+  // Full-screen invert. Kept under WCAG 2.3.1 (max 3 flashes per second): 3 flashes, one every 400 ms.
   function flicker() {
     if (reduce) return;
-    var n = 0, id = setInterval(function () { document.body.style.filter = (n % 2 === 0) ? 'invert(1)' : ''; if (++n > 5) { clearInterval(id); document.body.style.filter = ''; } }, 90);
+    var n = 0, id = setInterval(function () { document.body.style.filter = (n % 2 === 0) ? 'invert(1)' : ''; if (++n > 5) { clearInterval(id); document.body.style.filter = ''; } }, 200);
   }
 
   var cmds = {
-    help: function () { print(t('comandi: whoami, ls, cat caffe.txt, matrix, sudo assumimi, hal, stacca, 42, fuori-orario, clear, exit', 'commands: whoami, ls, cat caffe.txt, matrix, sudo hire-me, hal, stacca, 42, off-hours, clear, exit')); },
+    help: function () { print(t('comandi: whoami, ls, cat caffe.txt, matrix, sudo assumimi, hal, stacca, 42, fuori-orario, connetti, disconnetti, clear, exit', 'commands: whoami, ls, cat caffe.txt, matrix, sudo hire-me, hal, stacca, 42, off-hours, plug in, unplug, clear, exit')); },
     whoami: function () { print(t('marco weger. integration engineer. trasformo caffè in integrazioni.', 'marco weger. integration engineer. I turn coffee into integrations.')); },
     ls: function () { print(t('lavori/          (in compilazione)\nside-projects/   (vuota, per ora)\ncaffe.txt', 'projects/        (compiling)\nside-projects/   (empty, for now)\ncaffe.txt')); },
     'cat caffe.txt': function () { print(t('Offro io. hello@marcoweger.it', 'My treat. hello@marcoweger.it'), 'hl'); },
@@ -150,17 +198,39 @@
       });
       out.scrollTop = out.scrollHeight;
     },
+    connetti: function () {
+      plug(true); if (photo) photo.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      print(t('Connessione stabilita. Latenza: trascurabile. Caffè: necessario.', 'Link established. Latency: negligible. Coffee: required.'), 'hl');
+    },
+    disconnetti: function () { plug(false); print(t('Cavo scollegato. Torno serio.', 'Cable unplugged. Back to serious.')); },
     clear: function () { out.textContent = ''; },
     exit: function () { print('Hasta la vista, baby.', 'hl'); setTimeout(closeCon, 900); }
   };
-  cmds['sudo hire-me'] = cmds['sudo assumimi']; cmds.aiuto = cmds.help; cmds['off-hours'] = cmds['fuori-orario']; cmds.hobby = cmds['fuori-orario']; cmds['cat coffee.txt'] = cmds['cat caffe.txt'];
+  cmds['sudo hire-me'] = cmds['sudo assumimi']; cmds.aiuto = cmds.help; cmds['off-hours'] = cmds['fuori-orario']; cmds.hobby = cmds['fuori-orario']; cmds['plug in'] = cmds.connetti; cmds.collega = cmds.connetti; cmds.unplug = cmds.disconnetti; cmds.scollega = cmds.disconnetti; cmds['cat coffee.txt'] = cmds['cat caffe.txt'];
+  // Like a real shell: Up/Down walk the history, Tab completes a command name.
+  var hist = [], hpos = 0;
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var raw = input.value.trim(); input.value = '';
     if (!raw) return;
+    hist.push(raw); hpos = hist.length;
     print('$ ' + raw, 'echo');
     var fn = cmds[raw.toLowerCase().replace(/\s+/g, ' ')];
     if (fn) fn(); else print(t('comando non trovato: ' + raw + '. Prova "help".', 'command not found: ' + raw + '. Try "help".'));
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      if (!hist.length) return;
+      e.preventDefault();
+      hpos = Math.max(0, Math.min(hist.length, hpos + (e.key === 'ArrowUp' ? -1 : 1)));
+      input.value = hist[hpos] || '';
+    } else if (e.key === 'Tab' && input.value) {
+      var v = input.value.toLowerCase(), hits = Object.keys(cmds).filter(function (k) { return k.indexOf(v) === 0; });
+      if (!hits.length) return; // nothing to complete: let Tab move focus as usual
+      e.preventDefault();
+      if (hits.length === 1) input.value = hits[0];
+      else print(hits.join('  '), 'echo');
+    }
   });
 
   if (!anim) return;
@@ -168,7 +238,7 @@
   /* ---------- effects ---------- */
   var GLYPHS = '<>/\\{}[]=+*#$%_01';
 
-  /* hero: rotating "trovo ..." word, typed and deleted like a shell */
+  /* hero: rotating "Entro in azienda e ..." phrase, deleted and retyped like a shell. Skips work while its language is hidden. */
   document.querySelectorAll('.rotator').forEach(function (el) {
     var words = el.getAttribute('data-words').split('|'), i = 0;
     async function loop() {

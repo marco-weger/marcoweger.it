@@ -2,7 +2,7 @@
 <html lang="it" data-lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Marco Weger</title>
 <meta name="description" content="Marco Weger, integration engineer e consulente IT. Il gestionale non parla con le macchine, le macchine non parlano con Excel. Io parlo con tutti e tre.">
 <link rel="canonical" href="https://marcoweger.it/">
@@ -20,10 +20,17 @@
 <meta property="og:locale" content="it_IT">
 <meta property="og:locale:alternate" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="fonts.css?v=1">
-<link rel="stylesheet" href="mw.css?v=6">
-<link rel="stylesheet" href="styles.css?v=6">
-<script>(function(){var d=document.documentElement;if(window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver'in window)d.classList.add('anim');})();</script>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="preload" href="fonts/jetbrains-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/space-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts.css?v=7">
+<link rel="stylesheet" href="mw.css?v=7">
+<link rel="stylesheet" href="styles.css?v=7">
+<script src="boot.js?v=7"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"Marco Weger","url":"https://marcoweger.it/","email":"mailto:hello@marcoweger.it","jobTitle":"Integration Engineer & IT Consultant","image":"https://marcoweger.it/images/marco.jpg","alumniOf":{"@type":"CollegeOrUniversity","name":"Politecnico di Milano"},"address":{"@type":"PostalAddress","addressLocality":"Trescore Cremasco","addressRegion":"CR","addressCountry":"IT"},"sameAs":["https://github.com/marco-weger","https://www.linkedin.com/in/marco-w-972471113/"]}
+</script>
 </head>
 <body class="mw">
 <!--PAGE-START-->
@@ -32,7 +39,7 @@
     <p class="mw-wordmark">Marco Weger</p>
     <div class="build" aria-hidden="true"><span class="build-k">build</span><span class="build-bar"><i id="build-fill"></i></span><span id="build-pct" class="build-pct">0%</span></div>
     <div class="top-actions">
-      <button id="term-toggle" class="sq" type="button" aria-label="Apri il terminale" title="Terminale (~)">&gt;_</button>
+      <button id="term-toggle" class="sq" type="button" aria-controls="console" aria-expanded="false" aria-label="Apri il terminale" title="Terminale (~)">&gt;_</button>
       <button id="lang-toggle" class="sq" type="button" aria-label="Switch to English">EN</button>
       <button id="theme-toggle" class="sq" type="button" aria-label="Cambia tema">
         <svg class="ico-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
@@ -47,7 +54,7 @@
 
   <section class="hero">
     <div class="wrap">
-      <p class="hero-tag"><span class="mw-tag lang-it">INTEGRATION ENGINEER &amp; CONSULENTE IT</span><span class="mw-tag lang-en">INTEGRATION ENGINEER &amp; IT CONSULTANT</span></p>
+      <p class="hero-tag"><span class="mw-tag lang-it">INTEGRATION ENGINEER &amp; CONSULENTE IT</span><span class="mw-tag lang-en" lang="en">INTEGRATION ENGINEER &amp; IT CONSULTANT</span></p>
       <h1 class="name"><span class="scramble">Marco</span> <span><span class="scramble">Weger</span><i class="cursor" aria-hidden="true"></i></span></h1>
 
       <div class="stdout hero-lines" data-seq>
@@ -55,19 +62,19 @@
         <p class="type lang-it">Le macchine non parlano con Excel.</p>
         <p class="type lang-it">Excel non parla con nessuno.</p>
         <p class="type punch lang-it"><mark>Io parlo con tutti e tre.</mark></p>
-        <p class="type lang-en">Your ERP doesn't talk to your machines.</p>
-        <p class="type lang-en">Your machines don't talk to Excel.</p>
-        <p class="type lang-en">Excel doesn't talk to anyone.</p>
-        <p class="type punch lang-en"><mark>I talk to all three.</mark></p>
+        <p class="type lang-en" lang="en">Your ERP doesn't talk to your machines.</p>
+        <p class="type lang-en" lang="en">Your machines don't talk to Excel.</p>
+        <p class="type lang-en" lang="en">Excel doesn't talk to anyone.</p>
+        <p class="type punch lang-en" lang="en"><mark>I talk to all three.</mark></p>
         <p class="hero-sub lang-it">Entro in azienda e <span class="rotator" data-words="analizzo i processi, dalla produzione all&#39;ufficio|collego gestionale, macchine e magazzino|automatizzo il lavoro che oggi si fa a mano|porto i dati delle macchine nei report di chi decide|sostituisco i file Excel con software su misura">analizzo i processi, dalla produzione all&#39;ufficio</span>.<br>Poi resto, perché qualcuno i log deve leggerli.</p>
-        <p class="hero-sub lang-en">I walk into your company and <span class="rotator" data-words="map your processes, from the shop floor to the office|connect ERP, machines and warehouse|automate the work still done by hand|bring machine data into the reports people decide on|replace spreadsheets with software built for you">map your processes, from the shop floor to the office</span>.<br>Then I stick around, because someone has to read the logs.</p>
+        <p class="hero-sub lang-en" lang="en">I walk into your company and <span class="rotator" data-words="map your processes, from the shop floor to the office|connect ERP, machines and warehouse|automate the work still done by hand|bring machine data into the reports people decide on|replace spreadsheets with software built for you">map your processes, from the shop floor to the office</span>.<br>Then I stick around, because someone has to read the logs.</p>
       </div>
 
       <div class="term" data-seq>
         <div class="term-line">
           <span class="term-prompt">&gt;</span>
           <a class="term-addr" href="mailto:hello@marcoweger.it">hello@marcoweger.it</a>
-          <button class="term-copy" type="button" data-copy="hello@marcoweger.it"><span class="lang-it">copia</span><span class="lang-en">copy</span></button>
+          <button class="term-copy" type="button" aria-live="polite" data-copy="hello@marcoweger.it"><span class="lang-it">copia</span><span class="lang-en" lang="en">copy</span></button>
         </div>
       </div>
       <nav class="links" aria-label="Profili">
@@ -83,14 +90,14 @@
         <p class="cmd type">$ git status</p>
         <pre class="out"><span class="lang-it">On branch main
 Modifiche in corso:
-  modificato:   lavori/</span><span class="lang-en">On branch main
+  modificato:   lavori/</span><span class="lang-en" lang="en">On branch main
 Changes not staged for commit:
   modified:   projects/</span></pre>
         <h2 class="wip-title">Work in progress<span class="spin" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></h2>
         <p class="wip-text lang-it">Qui arriveranno i lavori. Per ora sono in compilazione, e finché c'è un warning non esce niente.</p>
-        <p class="wip-text lang-en">Projects will land here. They're still compiling, and nothing ships while there's a warning.</p>
+        <p class="wip-text lang-en" lang="en">Projects will land here. They're still compiling, and nothing ships while there's a warning.</p>
         <p class="wip-text dim lang-it">Nel frattempo c'è <a href="https://github.com/marco-weger" target="_blank" rel="noopener">GitHub</a>. Oppure un caffè, offro io.</p>
-        <p class="wip-text dim lang-en">Meanwhile there's <a href="https://github.com/marco-weger" target="_blank" rel="noopener">GitHub</a>. Or a coffee, my treat.</p>
+        <p class="wip-text dim lang-en" lang="en">Meanwhile there's <a href="https://github.com/marco-weger" target="_blank" rel="noopener">GitHub</a>. Or a coffee, my treat.</p>
       </div>
     </div>
   </section>
@@ -104,14 +111,20 @@ Changes not staged for commit:
 
   <section id="chi" class="about">
     <div class="wrap about-inner">
-      <img class="about-photo" src="images/marco-headshot.jpg" alt="Marco Weger" width="600" height="800">
+      <figure class="photo-wrap">
+        <button class="photo" id="photo" type="button" aria-pressed="false" aria-label="Marco Weger">
+          <img class="photo-a" src="images/marco.jpg" alt="Marco Weger" width="600" height="800" loading="lazy" decoding="async">
+          <img class="photo-b" src="images/marco-connesso.jpg" alt="" width="600" height="800" loading="lazy" aria-hidden="true">
+        </button>
+        <figcaption class="photo-cap" aria-live="polite"><span class="cap-off"><span class="lang-it">// scollegato</span><span class="lang-en" lang="en">// unplugged</span></span><span class="cap-on"><span class="lang-it">// collegato</span><span class="lang-en" lang="en">// connected</span></span></figcaption>
+      </figure>
       <div class="about-text" data-seq>
         <p class="cmd type">$ whoami</p>
-        <p class="who">marco weger · <span class="lang-it">ingegnere informatico, Politecnico di Milano</span><span class="lang-en">computer engineer, Politecnico di Milano</span></p>
+        <p class="who">marco weger · <span class="lang-it">ingegnere informatico, Politecnico di Milano</span><span class="lang-en" lang="en">computer engineer, Politecnico di Milano</span></p>
         <p class="lang-it">Dal 2016 faccio dialogare linee di produzione, gestionali e magazzini. Ogni tanto anche le persone che li usano, che è la parte difficile.</p>
-        <p class="lang-en">Since 2016 I've been getting production lines, ERPs and warehouses to talk to each other. Now and then the people using them too, which is the hard part.</p>
+        <p class="lang-en" lang="en">Since 2016 I've been getting production lines, ERPs and warehouses to talk to each other. Now and then the people using them too, which is the hard part.</p>
         <p class="dim lang-it">Fuori dal lavoro organizzo un festival annuale da oltre 5000 ingressi e guido due associazioni. Al confronto, una migrazione di database è rilassante.</p>
-        <p class="dim lang-en">Outside work I run an annual festival with over 5,000 admissions and lead two associations. A database migration is relaxing by comparison.</p>
+        <p class="dim lang-en" lang="en">Outside work I run an annual festival with over 5,000 admissions and lead two associations. A database migration is relaxing by comparison.</p>
       </div>
     </div>
   </section>
@@ -120,14 +133,14 @@ Changes not staged for commit:
     <div class="wrap" data-seq>
       <p class="cmd cmd--band type">$ ping marco</p>
       <p class="contact-q lang-it"><span class="scramble-v">Hai un Excel che fa paura anche a te?</span></p>
-      <p class="contact-q lang-en"><span class="scramble-v">Got a spreadsheet that scares even you?</span></p>
+      <p class="contact-q lang-en" lang="en"><span class="scramble-v">Got a spreadsheet that scares even you?</span></p>
       <p class="contact-sub lang-it">Scrivimi. Le formule non le giudico, le sistemo.</p>
-      <p class="contact-sub lang-en">Write to me. I don't judge the formulas, I fix them.</p>
+      <p class="contact-sub lang-en" lang="en">Write to me. I don't judge the formulas, I fix them.</p>
       <div class="term term--band">
         <div class="term-line">
           <span class="term-prompt">&gt;</span>
           <a class="term-addr" href="mailto:hello@marcoweger.it">hello@marcoweger.it</a>
-          <button class="term-copy" type="button" data-copy="hello@marcoweger.it"><span class="lang-it">copia</span><span class="lang-en">copy</span></button>
+          <button class="term-copy" type="button" aria-live="polite" data-copy="hello@marcoweger.it"><span class="lang-it">copia</span><span class="lang-en" lang="en">copy</span></button>
         </div>
       </div>
     </div>
@@ -137,19 +150,19 @@ Changes not staged for commit:
 
 <footer class="mw-band mw-band--footer foot">
   <span>© 2026 <b>Marco Weger</b> · Trescore Cremasco (CR) · P.IVA 01866180191 · C.F. WGRMRC98B10D142X</span>
-  <span class="foot-hint lang-it">premi ~ per il terminale</span><span class="foot-hint lang-en">press ~ for the terminal</span>
+  <span class="foot-hint lang-it">premi ~ per il terminale</span><span class="foot-hint lang-en" lang="en">press ~ for the terminal</span>
   <span class="foot-links"><a href="privacy.html">privacy</a><a href="https://github.com/marco-weger" target="_blank" rel="noopener">github</a><a href="https://www.linkedin.com/in/marco-w-972471113/" target="_blank" rel="noopener">linkedin</a></span>
 </footer>
-<div id="console" class="console" hidden>
+<div id="console" class="console" role="region" aria-label="Terminale" hidden>
   <div class="console-head"><span>marco@weger: ~</span><button id="console-close" class="console-x" type="button" aria-label="Chiudi">esc</button></div>
   <div id="console-out" class="console-out" aria-live="polite"></div>
   <form id="console-form" class="console-form" autocomplete="off">
     <label for="console-in" class="console-ps">marco@weger:~$</label>
-    <input id="console-in" class="console-in" type="text" spellcheck="false" autocapitalize="off">
+    <input id="console-in" class="console-in" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="send">
   </form>
 </div>
 <canvas id="rain" class="rain" hidden></canvas>
 <!--PAGE-END-->
-<script src="script.js?v=6"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>
