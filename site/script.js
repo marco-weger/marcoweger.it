@@ -77,6 +77,28 @@
     setInterval(function () { cells.forEach(function (c, i) { c.classList.toggle('on', i === k % cells.length || i === (k + 1) % cells.length); }); k++; }, 220);
   });
 
+  /* ---------- photo: plug / unplug ---------- */
+  var photo = document.getElementById('photo'), photoWrap = photo && photo.parentNode;
+  function plug(on) {
+    if (!photo) return;
+    var was = photo.classList.contains('on');
+    if (on === was) return;
+    photo.classList.toggle('on', on); photoWrap.classList.toggle('on', on);
+    photo.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (!on) { photo.classList.remove('flick'); void photo.offsetWidth; photo.classList.add('flick'); setTimeout(function () { photo.classList.remove('flick'); }, 320); }
+  }
+  if (photo) {
+    var hoverable = window.matchMedia && matchMedia('(hover: hover)').matches;
+    if (hoverable) {
+      photo.addEventListener('mouseenter', function () { plug(true); });
+      photo.addEventListener('mouseleave', function () { plug(false); });
+      photo.addEventListener('focus', function () { plug(true); });
+      photo.addEventListener('blur', function () { plug(false); });
+    } else {
+      photo.addEventListener('click', function () { plug(!photo.classList.contains('on')); });
+    }
+  }
+
   /* ---------- easter-egg terminal ---------- */
   var con = document.getElementById('console'), out = document.getElementById('console-out');
   var form = document.getElementById('console-form'), input = document.getElementById('console-in');
@@ -128,7 +150,7 @@
   }
 
   var cmds = {
-    help: function () { print(t('comandi: whoami, ls, cat caffe.txt, matrix, sudo assumimi, hal, stacca, 42, fuori-orario, clear, exit', 'commands: whoami, ls, cat caffe.txt, matrix, sudo hire-me, hal, stacca, 42, off-hours, clear, exit')); },
+    help: function () { print(t('comandi: whoami, ls, cat caffe.txt, matrix, sudo assumimi, hal, stacca, 42, fuori-orario, connetti, disconnetti, clear, exit', 'commands: whoami, ls, cat caffe.txt, matrix, sudo hire-me, hal, stacca, 42, off-hours, plug in, unplug, clear, exit')); },
     whoami: function () { print(t('marco weger. integration engineer. trasformo caffè in integrazioni.', 'marco weger. integration engineer. I turn coffee into integrations.')); },
     ls: function () { print(t('lavori/          (in compilazione)\nside-projects/   (vuota, per ora)\ncaffe.txt', 'projects/        (compiling)\nside-projects/   (empty, for now)\ncaffe.txt')); },
     'cat caffe.txt': function () { print(t('Offro io. hello@marcoweger.it', 'My treat. hello@marcoweger.it'), 'hl'); },
@@ -150,10 +172,15 @@
       });
       out.scrollTop = out.scrollHeight;
     },
+    connetti: function () {
+      plug(true); if (photo) photo.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      print(t('Connessione stabilita. Latenza: trascurabile. Caffè: necessario.', 'Link established. Latency: negligible. Coffee: required.'), 'hl');
+    },
+    disconnetti: function () { plug(false); print(t('Cavo scollegato. Torno serio.', 'Cable unplugged. Back to serious.')); },
     clear: function () { out.textContent = ''; },
     exit: function () { print('Hasta la vista, baby.', 'hl'); setTimeout(closeCon, 900); }
   };
-  cmds['sudo hire-me'] = cmds['sudo assumimi']; cmds.aiuto = cmds.help; cmds['off-hours'] = cmds['fuori-orario']; cmds.hobby = cmds['fuori-orario']; cmds['cat coffee.txt'] = cmds['cat caffe.txt'];
+  cmds['sudo hire-me'] = cmds['sudo assumimi']; cmds.aiuto = cmds.help; cmds['off-hours'] = cmds['fuori-orario']; cmds.hobby = cmds['fuori-orario']; cmds['plug in'] = cmds.connetti; cmds.collega = cmds.connetti; cmds.unplug = cmds.disconnetti; cmds.scollega = cmds.disconnetti; cmds['cat coffee.txt'] = cmds['cat caffe.txt'];
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var raw = input.value.trim(); input.value = '';

@@ -22,7 +22,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts.css?v=1">
 <link rel="stylesheet" href="mw.css?v=6">
-<link rel="stylesheet" href="styles.css?v=6">
+<link rel="stylesheet" href="styles.css?v=7">
 <script>(function(){var d=document.documentElement;if(window.matchMedia&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver'in window)d.classList.add('anim');})();</script>
 </head>
 <body class="mw">
@@ -104,7 +104,13 @@ Changes not staged for commit:
 
   <section id="chi" class="about">
     <div class="wrap about-inner">
-      <img class="about-photo" src="images/marco-headshot.jpg" alt="Marco Weger" width="600" height="800">
+      <figure class="photo-wrap">
+        <button class="photo" id="photo" type="button" aria-pressed="false" aria-label="Marco Weger">
+          <img class="photo-a" src="images/marco.jpg" alt="Marco Weger" width="600" height="800">
+          <img class="photo-b" src="images/marco-connesso.jpg" alt="" width="600" height="800" loading="lazy" aria-hidden="true">
+        </button>
+        <figcaption class="photo-cap" aria-live="polite"><span class="cap-off"><span class="lang-it">// scollegato</span><span class="lang-en">// unplugged</span></span><span class="cap-on"><span class="lang-it">// collegato</span><span class="lang-en">// connected</span></span></figcaption>
+      </figure>
       <div class="about-text" data-seq>
         <p class="cmd type">$ whoami</p>
         <p class="who">marco weger · <span class="lang-it">ingegnere informatico, Politecnico di Milano</span><span class="lang-en">computer engineer, Politecnico di Milano</span></p>
@@ -150,6 +156,6 @@ Changes not staged for commit:
 </div>
 <canvas id="rain" class="rain" hidden></canvas>
 <!--PAGE-END-->
-<script src="script.js?v=6"></script>
+<script src="script.js?v=7"></script>
 </body>
 </html>
