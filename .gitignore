@@ -1,3 +1,10 @@
 .DS_Store
 *.log
 site/images/marco-laurea.jpg
+
+# Private project notes kept in CoworkOS, never committed
+claude.md
+CLAUDE.md
+memory.md
+archivio/
+testi-sito-draft-v1.md
