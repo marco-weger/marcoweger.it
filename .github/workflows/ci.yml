@@ -1,0 +1,39 @@
+# CI for a static site, from Okapi (R-020…R-026). Thin caller.
+name: ci
+
+on:
+  push:
+    branches: [dev, test, prod]
+  pull_request:
+    branches: [dev, test, prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    uses: marco-weger/okapi/.github/workflows/frontend.yml@v0
+    with:
+      start_command: python3 -m http.server 8000 --directory site
+      urls: |
+        http://127.0.0.1:8000/
+
+  secrets:
+    uses: marco-weger/okapi/.github/workflows/secrets.yml@v0
+
+  commits:
+    uses: marco-weger/okapi/.github/workflows/commits.yml@v0
+
+  version-check:
+    if: github.event_name == 'pull_request' && contains(fromJSON('["test","prod"]'), github.base_ref)
+    uses: marco-weger/okapi/.github/workflows/version-check.yml@v0
+
+  release:
+    needs: [frontend, secrets]
+    if: github.event_name == 'push' && github.ref_name == 'prod'
+    uses: marco-weger/okapi/.github/workflows/release.yml@v0
+    permissions:
+      contents: write
+
+  # Deploy stays in pages.yml (GitHub Pages on prod).

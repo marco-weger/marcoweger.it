@@ -1,0 +1,23 @@
+# MW pre-commit configuration (R-020), from Okapi, for static sites.
+# Install once per clone: `uvx pre-commit install --install-hooks` (installs pre-commit and commit-msg hooks).
+default_install_hook_types: [pre-commit, commit-msg]
+minimum_pre_commit_version: "4.4.0"
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-merge-conflict
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/marco-weger/okapi
+    rev: v0.3.0
+    hooks:
+      - id: conventional-commit
