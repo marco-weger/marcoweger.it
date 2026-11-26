@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [1.2.0] - 2026-11-26
+
+Alignment with the MW rules workbook.
+
+### Added
+- Environment band (R-001): violet `DEV` on `localhost` and `*.dev.marcoweger.it`, magenta `TEST` on test hosts, nothing in prod. Set by `boot.js` from the host name.
+- Version and short commit in the footer (R-002), stamped by the deploy workflow from `VERSION` and the commit SHA.
+
+### Changed
+- Portrait in colour instead of black and white, with the "connetti" / "plug in" easter egg (hover, tap or terminal command); shipped on 2026-10-14 without a version bump, recorded here.
+- Touch targets of at least 44 px (R-024): header buttons, copy buttons, terminal close button, hit area of the profile and footer links (no visual change for the links).
+- Cache-busting query bumped to `v=8`.
+
 ## [1.1.0] - 2026-10-13
 
 Code review: no copy or design changes, only quality, accessibility, performance and security.

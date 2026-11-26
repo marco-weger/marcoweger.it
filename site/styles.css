@@ -26,7 +26,7 @@ html[data-lang="it"] .lang-en, html[data-lang="en"] .lang-it { display: none !im
 .build-pct { min-width: 4ch; text-align: right; font-variant-numeric: tabular-nums; color: var(--on-band); }
 .scrollbar { height: 2px; background: var(--band); }
 .scrollbar i { display: block; height: 100%; width: 0; background: var(--lime); }
-.sq { width: 38px; height: 38px; display: inline-grid; place-items: center; background: transparent; color: var(--on-band); border: 1px solid var(--band-rule); border-radius: 0; font: 700 12px/1 var(--font-mono); letter-spacing: 1px; cursor: pointer; }
+.sq { width: 44px; height: 44px; display: inline-grid; place-items: center; background: transparent; color: var(--on-band); border: 1px solid var(--band-rule); border-radius: 0; font: 700 12px/1 var(--font-mono); letter-spacing: 1px; cursor: pointer; }
 .sq:hover { border-color: var(--on-band); }
 .sq[aria-expanded="true"] { border-color: var(--lime); color: var(--lime); }
 .ico-sun { display: none; }
@@ -57,11 +57,13 @@ html.is-dark .ico-moon { display: none; }
 .term-prompt { color: var(--text-label); }
 .term-addr { flex: 1; min-width: 0; text-decoration: none; overflow-wrap: anywhere; }
 .term-addr:hover { text-decoration: underline; text-underline-offset: 4px; }
-.term-copy { flex: none; font: 700 12px/1 var(--font-mono); letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
+.term-copy { flex: none; font: 700 12px/1 var(--font-mono); letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; min-height: 44px; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
 .term-copy.done { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }
 
 .links { display: flex; flex-wrap: wrap; gap: var(--space-6); margin-top: var(--space-4); font-family: var(--font-mono); font-size: 14px; }
-.links a { text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 1px; }
+.links a { position: relative; text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 1px; }
+/* R-024: 44px touch target without changing how the link looks */
+.links a::before, .foot-links a::before { content: ""; position: absolute; inset: -12px -6px; }
 .links a:hover { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }
 
 /* work in progress */
@@ -115,7 +117,9 @@ html.is-dark .ico-moon { display: none; }
 /* footer */
 .foot { flex-wrap: wrap; padding-inline: clamp(16px, 5vw, 56px); padding-bottom: max(var(--space-2), env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--band-rule); }
 .foot-links { display: flex; gap: var(--space-4); }
-.foot-links a { color: var(--on-band); text-underline-offset: 3px; }
+.foot-links a { position: relative; color: var(--on-band); text-underline-offset: 3px; }
+.foot-links a::before { inset: -14px -6px; } /* footer text is 11px: needs a taller hit area to reach 44px */
+.foot-ver { color: var(--on-band-muted); font-variant-numeric: tabular-nums; }
 
 /* scroll-in: only when JS added .anim (motion allowed). Children of [data-seq] print like stdout. */
 html.anim [data-seq] > * { opacity: 0; transform: translateY(6px); transition: opacity .35s ease, transform .35s ease; }
@@ -140,7 +144,7 @@ html.anim [data-seq].term.shown { opacity: 1; }
 .foot-hint { font-family: var(--font-mono); color: var(--on-band-muted); }
 .console { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--band); color: var(--on-band); border-top: 2px solid var(--lime); font-family: var(--font-mono); font-size: 14px; padding-bottom: env(safe-area-inset-bottom, 0px); }
 .console-head { display: flex; justify-content: space-between; align-items: center; padding: 8px clamp(16px, 5vw, 56px); border-bottom: 1px solid var(--band-rule); color: var(--on-band-muted); font-size: 12px; }
-.console-x { background: transparent; color: var(--on-band-muted); border: 1px solid var(--band-rule); border-radius: 0; font: 12px var(--font-mono); padding: 4px 8px; cursor: pointer; }
+.console-x { background: transparent; color: var(--on-band-muted); border: 1px solid var(--band-rule); border-radius: 0; font: 12px var(--font-mono); padding: 4px 8px; min-width: 44px; min-height: 44px; cursor: pointer; }
 .console-out { max-height: min(40vh, 320px); overflow-y: auto; padding: 12px clamp(16px, 5vw, 56px) 0; white-space: pre-wrap; line-height: 1.55; }
 .console-out .echo { color: var(--on-band-muted); }
 .console-out .hl { color: var(--lime); }
@@ -162,3 +166,9 @@ a.mw-wordmark { text-decoration: none; }
 /* page-to-page view transition: quick cross-fade, nothing fancy (MW style: no flourishes) */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .25s; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+
+/* R-001 environment band (MW rules workbook): DEV violet, TEST magenta, nothing in prod.
+   Fixed colours set by the rule, deliberately outside the MW palette. Covers only the wordmark, never a control. */
+html[data-env] body::before { position: fixed; z-index: 100; top: 14px; left: -46px; width: 160px; transform: rotate(-45deg); text-align: center; font: 700 12px/24px var(--font-mono); letter-spacing: 2px; color: #ffffff; pointer-events: none; }
+html[data-env="dev"] body::before { content: "DEV"; background: #5B3FC4; }
+html[data-env="test"] body::before { content: "TEST"; background: #FF2E9E; }
