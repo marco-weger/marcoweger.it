@@ -21,6 +21,12 @@ repos:
       - id: gitleaks
   - repo: local
     hooks:
+      # Public repo: private notes, the bridge and CoworkOS never get committed (claude.md rule 7). Also runs in CI.
+      - id: no-private-files
+        name: no private files (public repository)
+        language: fail
+        entry: private file, never commit it to this public repository
+        files: (?i)(^|/)(claude(\.local)?|memory)\.md$|(^|/)(_bridge|CoworkOS)/
       - id: conventional-commit
         name: conventional commit message
         language: pygrep

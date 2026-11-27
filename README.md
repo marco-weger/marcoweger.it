@@ -2,6 +2,8 @@
 
 Personal site of Marco Weger, integration engineer and IT consultant. Static HTML/CSS/JS, no build step, published on GitHub Pages at https://marcoweger.it.
 
+**This repository is public.** Never commit private notes (`claude.md`, `CLAUDE.md`, `CLAUDE.local.md`, `memory.md`), the Cowork bridge (`_bridge/`) or anything from `CoworkOS/`: `.gitignore` excludes them and the `no-private-files` pre-commit hook, also run in CI, refuses them.
+
 ## Layout
 
 | Path | What |
@@ -15,7 +17,9 @@ Personal site of Marco Weger, integration engineer and IT consultant. Static HTM
 | `site/privacy.html`, `site/404.html` | Privacy notice and themed 404 |
 | `site/og.png`, `site/favicon*`, `site/apple-touch-icon.png` | Share preview and icons |
 | `site/CNAME`, `site/robots.txt`, `site/sitemap.xml` | Domain and indexing |
-| `.github/workflows/pages.yml` | Deploys `site/` to GitHub Pages on push to `prod` |
+| `.github/workflows/pages.yml` | Job `deploy-prod`: deploys `site/` to GitHub Pages on push to `prod` |
+| `.github/workflows/ci.yml` | pre-commit, gitleaks, Conventional Commits, version check; axe + Lighthouse mobile on PRs to `prod`. `okapi-*.yml` are vendored from Okapi (re-sync by hand) |
+| `.pre-commit-config.yaml` | Local hooks, same as CI: `uvx pre-commit install --install-hooks` |
 
 ## Branches
 
