@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
+## [1.2.2] - 2026-11-27
+
+### Fixed
+- `mw.css` re-synced with the MW design system: light-theme `--text-label` is now `#6e6e6e` (5.1:1 on white, was 3.1:1). Dark theme unchanged.
+
+### Changed
+- Cache-busting query bumped to `v=10`.
+
 ## [1.2.1] - 2026-11-27
 
 CI and repository hygiene, plus two accessibility fixes found by the new axe check.
