@@ -34,7 +34,7 @@ html.is-dark .ico-sun { display: block; }
 html.is-dark .ico-moon { display: none; }
 
 /* shell bits shared by every section */
-.cmd { margin: 0 0 var(--space-3); font-family: var(--font-mono); font-size: 14px; color: var(--text-label); min-height: 1.55em; }
+.cmd { margin: 0 0 var(--space-3); font-family: var(--font-mono); font-size: 14px; color: var(--text-dim); min-height: 1.55em; }
 .cmd--band { color: var(--on-band-muted); }
 .out { margin: 0 0 var(--space-8); font-family: var(--font-mono); font-size: 13px; line-height: 1.6; color: var(--text-dim); white-space: pre-wrap; }
 .type.typing::after { content: ""; display: inline-block; width: .55em; height: 1em; margin-left: 2px; background: var(--lime); vertical-align: -0.15em; }
@@ -54,7 +54,7 @@ html.is-dark .ico-moon { display: none; }
 
 .term { margin-top: clamp(32px, 4vw, 48px); max-width: 560px; border: 1px solid var(--ink); background: var(--paper); }
 .term-line { display: flex; align-items: center; gap: var(--space-3); padding: 12px 12px 12px 18px; font-family: var(--font-mono); font-size: clamp(15px, 1.6vw, 18px); min-width: 0; }
-.term-prompt { color: var(--text-label); }
+.term-prompt { color: var(--text-dim); }
 .term-addr { flex: 1; min-width: 0; text-decoration: none; overflow-wrap: anywhere; }
 .term-addr:hover { text-decoration: underline; text-underline-offset: 4px; }
 .term-copy { flex: none; font: 700 12px/1 var(--font-mono); letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; min-height: 44px; border: 1px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); cursor: pointer; }
@@ -95,7 +95,7 @@ html.is-dark .ico-moon { display: none; }
   70%  { clip-path: inset(0 0 0 0);     transform: translateX(1px); }
   100% { clip-path: inset(0 0 0 0);     transform: none; }
 }
-.photo-cap { margin-top: var(--space-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: .5px; color: var(--text-label); }
+.photo-cap { margin-top: var(--space-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: .5px; color: var(--text-dim); }
 .photo-cap .cap-on { display: none; background: var(--lime); color: var(--on-lime); padding: 1px 6px; }
 .photo-wrap.on .cap-on { display: inline-block; }
 .photo-wrap.on .cap-off { display: none; }

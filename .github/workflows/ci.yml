@@ -1,0 +1,47 @@
+# CI for a static site, from the Okapi static-site template (v0.11.1, R-020…R-026).
+# The repo is public and Okapi is private, so the reusable workflows are vendored (D-001): okapi-*.yml.
+name: ci
+
+on:
+  push:
+    branches: [dev, prod]
+  pull_request:
+    branches: [dev, prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:  # same hooks as local, on every file (catches commits made with --no-verify)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d  # v10.4.0
+      - run: uvx pre-commit run --all-files --show-diff-on-failure
+
+  gates:  # gitleaks + Conventional Commits + version check (PRs to prod), one job
+    uses: ./.github/workflows/okapi-gates.yml
+    with:
+      version_check_branches: '["prod"]'
+
+  frontend:  # axe + Lighthouse mobile: PRs and pushes to prod, manual runs; not on dev
+    if: github.event_name == 'workflow_dispatch' || (github.base_ref || github.ref_name) == 'prod'
+    uses: ./.github/workflows/okapi-frontend.yml
+    with:
+      start_command: python3 -m http.server 8000 --directory site
+      urls: |
+        http://127.0.0.1:8000/
+        http://127.0.0.1:8000/privacy.html
+
+  frontend-404:  # the 404 page is noindex on purpose, so no SEO budget
+    if: github.event_name == 'workflow_dispatch' || (github.base_ref || github.ref_name) == 'prod'
+    uses: ./.github/workflows/okapi-frontend.yml
+    with:
+      start_command: python3 -m http.server 8000 --directory site
+      urls: |
+        http://127.0.0.1:8000/404.html
+      min_seo: 0
+      upload_reports: false  # artifact name would clash with the frontend job
+
+  # Deploy stays in pages.yml (D-002). Tag vX.Y.Z on the merge commit is done by hand after Marco's merge (R-025).

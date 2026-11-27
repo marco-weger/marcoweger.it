@@ -1,0 +1,15 @@
+# gitleaks configuration (R-019, R-021): default rules plus project allowlist.
+# Used by the pre-commit hook and by Okapi's secrets.yml.
+title = "MW gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Lock files and generated artefacts"
+paths = [
+  '''(^|/)uv\.lock$''',
+  '''(^|/)package-lock\.json$''',
+]
+# Add a finding that is a false positive here, with a comment saying why:
+# regexes = ['''example-not-a-secret''']

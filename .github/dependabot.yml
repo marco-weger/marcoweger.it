@@ -1,0 +1,7 @@
+# Dependabot (R-021): weekly, GitHub Actions (add npm/docker blocks if the site gets them).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    commit-message: { prefix: "ci(deps)" }

@@ -19,8 +19,8 @@
   /* ---------- language ---------- */
   // Labels of icon-only controls follow the page language.
   var LABELS = {
-    it: { lang: 'Switch to English', theme: 'Cambia tema', term: 'Apri il terminale', close: 'Chiudi', con: 'Terminale' },
-    en: { lang: 'Passa all’italiano', theme: 'Toggle theme', term: 'Open the terminal', close: 'Close', con: 'Terminal' }
+    it: { lang: 'EN, switch to English', theme: 'Cambia tema', term: 'Apri il terminale', close: 'Chiudi', con: 'Terminale' },
+    en: { lang: 'IT, passa all’italiano', theme: 'Toggle theme', term: 'Open the terminal', close: 'Close', con: 'Terminal' }
   };
   function setLang(lang) {
     var l = LABELS[lang];

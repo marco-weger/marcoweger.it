@@ -1,0 +1,130 @@
+# Vendored from marco-weger/okapi, path .github/workflows/gates.yml, Okapi v0.11.1 (26c231d).
+# Vendored per D-001, re-sync by hand: do not edit here, copy the new Okapi version over this file.
+
+# Reusable: gitleaks + Conventional Commits + version check in ONE job (GitHub bills each job rounded up to a minute).
+# Same checks as secrets.yml, commits.yml and version-check.yml, which stay for existing callers: the step scripts
+# are identical (tests/test_workflows.py). Every check runs even when an earlier one fails.
+# Version check: only on pull requests to `version_check_branches`.
+name: gates
+
+on:
+  workflow_call:
+    inputs:
+      full_history:
+        description: gitleaks always scans the whole history, whatever the event
+        type: boolean
+        default: false
+      check_commits:
+        description: Run the Conventional Commits check (false where old history would block a promotion; call commits.yml there)
+        type: boolean
+        default: true
+      check_title:
+        description: Also check the pull request title (it becomes the commit subject on squash merges)
+        type: boolean
+        default: true
+      version_check_branches:
+        description: JSON list of base branches whose pull requests need a VERSION bump and a CHANGELOG section
+        type: string
+        default: '["test","prod"]'
+      working_directory:
+        description: Folder with VERSION and CHANGELOG.md
+        type: string
+        default: "."
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: 8.30.1  # keep equal to the gitleaks rev in templates/*/.pre-commit-config.yaml
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
+jobs:
+  gates:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install gitleaks
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/gitleaks.tgz" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "$GITLEAKS_SHA256  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Scan
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          FULL: ${{ inputs.full_history }}
+        run: |
+          zero=0000000000000000000000000000000000000000
+          if [[ "$FULL" == true ]]; then range=""
+          elif [[ -n "$PR_BASE" ]]; then range="$PR_BASE..$PR_HEAD"
+          elif [[ -n "$PUSH_BEFORE" && "$PUSH_BEFORE" != "$zero" ]] && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then range="$PUSH_BEFORE..$GITHUB_SHA"
+          else range=""
+          fi
+          echo "Scanning: ${range:-full history}"
+          gitleaks git --redact --verbose --exit-code 1 ${range:+--log-opts="$range"} .
+      - name: Check commit subjects
+        if: ${{ !cancelled() && inputs.check_commits }}
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          BEFORE: ${{ github.event.before }}
+          TITLE: ${{ inputs.check_title && github.event.pull_request.title || '' }}
+        shell: python
+        run: |
+          import os, re, subprocess, sys
+          COMMIT_RE = r'^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?: \S.*$'
+          SKIP_RE = r'^(Merge (branch|pull request|remote-tracking branch|tag) |Revert \")'
+          base, head = os.environ["BASE"], os.environ["HEAD"]
+          before = os.environ["BEFORE"]
+          known = before.strip("0") and subprocess.run(["git", "cat-file", "-e", f"{before}^{{commit}}"]).returncode == 0
+          rev = f"{base}..{head}" if base else f"{before}..{head}" if known else f"-1 {head}"
+          log = subprocess.run(["git", "log", "--format=%h %s", *rev.split()], check=True,
+                               capture_output=True, text=True).stdout.splitlines()
+          items = [(line[:line.index(" ")], line[line.index(" ") + 1:]) for line in log]
+          if os.environ["TITLE"]:
+              items.append(("PR title", os.environ["TITLE"]))
+          bad = [(ref, s) for ref, s in items if not (re.match(SKIP_RE, s) or re.match(COMMIT_RE, s))]
+          for ref, s in bad:
+              print(f"::error::{ref}: not a Conventional Commit: {s}")
+          print(f"{len(items) - len(bad)}/{len(items)} subjects OK")
+          if bad:
+              print("Expected `type(scope)!: description`; types: feat fix docs style refactor perf test build ci chore revert")
+          sys.exit(1 if bad else 0)
+      - name: VERSION bumped, CHANGELOG updated
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && contains(fromJSON(inputs.version_check_branches), github.base_ref) }}
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        shell: python
+        run: |
+          import os, re, subprocess, sys
+          base = os.environ["BASE"]
+          if not base:
+              sys.exit("::error::version-check runs only on pull_request events")
+          def at_base(path):
+              r = subprocess.run(["git", "show", f"{base}:./{path}"], capture_output=True, text=True)
+              return r.stdout if r.returncode == 0 else None
+          def key(v):  # PEP 440 subset: X.Y.Z[{a|b|rc}N]; None if not valid
+              m = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:(a|b|rc)(\d+))?", v)
+              return m and (*map(int, m.group(1, 2, 3)), "a b rc".split().index(m[4]) if m[4] else 3, int(m[5] or 0))
+          head_v = open("VERSION").read().strip()
+          base_v = (at_base("VERSION") or "0.0.0").strip()
+          errors = []
+          if not key(head_v):
+              errors.append(f"VERSION {head_v!r} is not MAJOR.MINOR.PATCH[aN|bN|rcN]")
+          elif key(base_v) and key(head_v) <= key(base_v):
+              errors.append(f"VERSION not bumped: base {base_v}, head {head_v}")
+          changelog = open("CHANGELOG.md").read()
+          if not re.search(rf"^## \[{re.escape(head_v)}\] - \d{{4}}-\d{{2}}-\d{{2}}", changelog, re.M):
+              errors.append(f"CHANGELOG.md has no `## [{head_v}] - YYYY-MM-DD` section")
+          if changelog == (at_base("CHANGELOG.md") or ""):
+              errors.append("CHANGELOG.md not changed in this pull request")
+          for e in errors:
+              print(f"::error::{e}")
+          print(f"base {base_v} -> head {head_v}")
+          sys.exit(1 if errors else 0)
