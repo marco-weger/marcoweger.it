@@ -4,7 +4,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [1.2.1] - 2026-11-27
 
-CI and repository hygiene, no change to the page.
+CI and repository hygiene, plus two accessibility fixes found by the new axe check.
 
 ### Added
 - CI on pull requests and pushes (`ci.yml`): pre-commit hooks, gitleaks, Conventional Commits, VERSION/CHANGELOG check on PRs to `prod`, axe and Lighthouse mobile budgets on `index.html`, `privacy.html` and `404.html`. Okapi workflows vendored as `okapi-*.yml` because the repository is public.
@@ -13,6 +13,11 @@ CI and repository hygiene, no change to the page.
 
 ### Changed
 - GitHub Pages deploy job renamed to `deploy-prod` (behaviour unchanged).
+- Cache-busting query bumped to `v=9`.
+
+### Fixed
+- Contrast: command line, terminal prompt and photo caption use `--text-dim` instead of `--text-label` (3.1:1 on the light theme, below WCAG AA).
+- Language button: its accessible name now starts with the visible text (`EN` / `IT`).
 
 ## [1.2.0] - 2026-11-26
 
