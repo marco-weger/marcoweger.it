@@ -1,0 +1,192 @@
+# Vendored from marco-weger/okapi, path .github/workflows/frontend.yml, Okapi v0.11.1 (26c231d).
+# Vendored per D-001, re-sync by hand: do not edit here, copy the new Okapi version over this file.
+
+# Reusable: front-end quality (R-024). Starts the app, then on the given URLs:
+#   - the caller's Playwright tests (optional `test_command`; WebKit + iPhone viewport is the caller's test setup);
+#   - axe accessibility check in Playwright WebKit with an iPhone viewport (violations of `axe_impact` or worse fail);
+#   - Lighthouse CI on the mobile profile with score and page-weight budgets (3 runs per URL, median asserted).
+# Reports are uploaded as the `frontend-reports` artifact. Nothing is sent to public Lighthouse storage.
+name: frontend
+
+on:
+  workflow_call:
+    inputs:
+      setup_command:
+        description: Install command run before start (e.g. `uv sync --locked`); empty = none
+        type: string
+        default: ""
+      start_command:
+        description: Command starting the app in the foreground (run in background by the workflow), e.g. `uv run uvicorn app.main:app --port 8080`
+        required: true
+        type: string
+      urls:
+        description: Pages to check, one URL per line (the first one is also the readiness probe)
+        required: true
+        type: string
+      test_command:
+        description: Playwright tests command, run once the app is up (empty = skip)
+        type: string
+        default: ""
+      working_directory:
+        type: string
+        default: "."
+      axe_impact:
+        description: "Lowest axe impact that fails: minor | moderate | serious | critical"
+        type: string
+        default: serious
+      min_performance:
+        type: number
+        default: 0.9
+      min_accessibility:
+        type: number
+        default: 0.95
+      min_best_practices:
+        type: number
+        default: 0.9
+      min_seo:
+        description: Minimum SEO score (set 0 for noindex/internal apps)
+        type: number
+        default: 0.9
+      max_total_bytes:
+        description: Maximum total transfer size of a page in bytes
+        type: number
+        default: 1000000
+      max_script_bytes:
+        description: Maximum JavaScript transfer size of a page in bytes (0 = no JS budget)
+        type: number
+        default: 0
+      upload_reports:
+        description: Upload axe/Lighthouse reports as an artifact (false on Gitea until upload-artifact v7 is verified there)
+        type: boolean
+        default: true
+      node_version:
+        type: string
+        default: "24"
+
+permissions:
+  contents: read
+
+env:
+  PLAYWRIGHT_VERSION: 1.65.0
+  AXE_VERSION: 4.14.0
+  LHCI_VERSION: 0.16.0
+
+jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d  # v10.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ inputs.node_version }}
+      - name: Tools (Playwright, axe, Lighthouse CI)
+        working-directory: ${{ runner.temp }}
+        run: |
+          node --version
+          mkdir -p okapi-fe && cd okapi-fe
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "playwright@$PLAYWRIGHT_VERSION" "@axe-core/playwright@$AXE_VERSION" "@lhci/cli@$LHCI_VERSION"
+          npx playwright install --with-deps webkit
+      - name: Setup
+        if: inputs.setup_command != ''
+        env:
+          CMD: ${{ inputs.setup_command }}
+        run: bash -c "$CMD"
+      - name: Start the app
+        env:
+          CMD: ${{ inputs.start_command }}
+          URLS: ${{ inputs.urls }}
+        run: |
+          nohup bash -c "$CMD" > "$RUNNER_TEMP/app.log" 2>&1 &
+          first=$(grep -m1 . <<< "$URLS" | tr -d '[:space:]')
+          for _ in $(seq 60); do curl -fs -o /dev/null "$first" && exit 0; sleep 1; done
+          echo "::error::app not reachable at $first after 60 s"; cat "$RUNNER_TEMP/app.log"; exit 1
+      - name: Playwright tests
+        if: inputs.test_command != ''
+        env:
+          CMD: ${{ inputs.test_command }}
+        run: bash -c "$CMD"
+      - name: Accessibility (axe, WebKit, iPhone)
+        env:
+          URLS: ${{ inputs.urls }}
+          IMPACT: ${{ inputs.axe_impact }}
+        run: |
+          cat > "$RUNNER_TEMP/okapi-fe/axe.mjs" <<'EOF'
+          import { webkit, devices } from "playwright";
+          import { AxeBuilder } from "@axe-core/playwright";
+          import { writeFileSync } from "node:fs";
+          const order = ["minor", "moderate", "serious", "critical"];
+          const min = order.indexOf(process.env.IMPACT);
+          if (min < 0) { console.error(`bad axe_impact: ${process.env.IMPACT}`); process.exit(1); }
+          const urls = process.env.URLS.split("\n").map((u) => u.trim()).filter(Boolean);
+          const browser = await webkit.launch();
+          const context = await browser.newContext({ ...devices["iPhone 15"] });
+          let failed = 0;
+          const report = {};
+          for (const url of urls) {
+            const page = await context.newPage();
+            await page.goto(url, { waitUntil: "networkidle" });
+            const { violations } = await new AxeBuilder({ page }).analyze();
+            report[url] = violations;
+            for (const v of violations) {
+              const fail = order.indexOf(v.impact) >= min;
+              failed += fail;
+              console.log(`${fail ? "::error::" : ""}${url} [${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} nodes) ${v.helpUrl}`);
+            }
+            await page.close();
+          }
+          await browser.close();
+          writeFileSync(process.env.RUNNER_TEMP + "/axe-report.json", JSON.stringify(report, null, 2));
+          console.log(`${urls.length} pages, ${failed} blocking violations`);
+          process.exit(failed ? 1 : 0);
+          EOF
+          node "$RUNNER_TEMP/okapi-fe/axe.mjs"
+      - name: Lighthouse CI (mobile)
+        if: ${{ !cancelled() }}
+        env:
+          URLS: ${{ inputs.urls }}
+          MIN_PERF: ${{ inputs.min_performance }}
+          MIN_A11Y: ${{ inputs.min_accessibility }}
+          MIN_BP: ${{ inputs.min_best_practices }}
+          MIN_SEO: ${{ inputs.min_seo }}
+          MAX_BYTES: ${{ inputs.max_total_bytes }}
+          MAX_SCRIPT: ${{ inputs.max_script_bytes }}
+        shell: python
+        run: |
+          import json, os, subprocess, sys
+          t = os.environ["RUNNER_TEMP"]
+          score = lambda k: ["error", {"minScore": float(os.environ[k]), "aggregationMethod": "median"}]
+          config = {"ci": {
+              "collect": {"url": [u.strip() for u in os.environ["URLS"].splitlines() if u.strip()],
+                          "numberOfRuns": 3, "settings": {"chromeFlags": "--headless=new --no-sandbox"}},
+              "assert": {"assertions": {
+                  "categories:performance": score("MIN_PERF"),
+                  "categories:accessibility": score("MIN_A11Y"),
+                  "categories:best-practices": score("MIN_BP"),
+                  "categories:seo": score("MIN_SEO"),
+                  "resource-summary:total:size": ["error", {"maxNumericValue": float(os.environ["MAX_BYTES"]),
+                                                            "aggregationMethod": "median"}],
+              }},
+              "upload": {"target": "filesystem", "outputDir": f"{t}/lighthouse"},
+          }}
+          if float(os.environ["MAX_SCRIPT"]) > 0:
+              config["ci"]["assert"]["assertions"]["resource-summary:script:size"] = [
+                  "error", {"maxNumericValue": float(os.environ["MAX_SCRIPT"]), "aggregationMethod": "median"}]
+          with open(f"{t}/lighthouserc.json", "w") as f:
+              json.dump(config, f, indent=2)
+          lhci = f"{t}/okapi-fe/node_modules/.bin/lhci"
+          sys.exit(subprocess.run([lhci, "autorun", f"--config={t}/lighthouserc.json"]).returncode)
+      - name: Reports
+        if: ${{ !cancelled() && inputs.upload_reports }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: frontend-reports
+          path: |
+            ${{ runner.temp }}/axe-report.json
+            ${{ runner.temp }}/lighthouse/
+            ${{ runner.temp }}/app.log
+          if-no-files-found: ignore

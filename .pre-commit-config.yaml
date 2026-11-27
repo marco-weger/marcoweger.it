@@ -1,5 +1,7 @@
-# MW pre-commit configuration (R-020), from Okapi, for static sites.
+# MW pre-commit configuration (R-020), from the Okapi static-site template (v0.11.1).
 # Install once per clone: `uvx pre-commit install --install-hooks` (installs pre-commit and commit-msg hooks).
+# The Okapi `conventional-commit` hook cannot be used here (Okapi is private, D-001): it is the local pygrep hook below,
+# same regex as commits.yml / okapi-gates.yml.
 default_install_hook_types: [pre-commit, commit-msg]
 minimum_pre_commit_version: "4.4.0"
 repos:
@@ -17,7 +19,11 @@ repos:
     rev: v8.30.1
     hooks:
       - id: gitleaks
-  - repo: https://github.com/marco-weger/okapi
-    rev: v0.3.0
+  - repo: local
     hooks:
       - id: conventional-commit
+        name: conventional commit message
+        language: pygrep
+        entry: '\A(Merge (branch|pull request|remote-tracking branch|tag) |Revert "|(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?: \S)'
+        args: [--multiline, --negate]
+        stages: [commit-msg]
